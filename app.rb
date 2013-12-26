@@ -6,11 +6,11 @@ require 'sinatra'
 require 'date'
 require 'json'
 
-def graphgenerate(xlabels,y,x_name,y_name,graphname) 
+def graphgenerate(xlabels,y,x_name,y_name,graphname)
 	g = Gruff::Line.new
 	g.title = graphname
 	g.data(graphname,y)
-	g.labels = xlabels 
+	g.labels = xlabels
 	g.x_axis_label = x_name
 	g.y_axis_label = y_name
 	g.write('./figure/'+graphname+'.png')
@@ -61,7 +61,8 @@ def pastfileanalysis(dateyear,datemonth,dateday)
 	return ""
 end
 
-get '/' do
+post '/' do
+	data = JSON.parse(request.body)
 	if data["status"] == "ok" and data["events"]
 		data["events"].each do |e, text=e["message"]["text"]|
 			if text.index("!toden") != nil
