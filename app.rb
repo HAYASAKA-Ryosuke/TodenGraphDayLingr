@@ -61,8 +61,9 @@ def pastfileanalysis(dateyear,datemonth,dateday)
         return ""
 end
 
-post '/' do
-        data = JSON.parse(request.body)
+post '/todengraphdaylingr' do
+        #data = JSON.parse(request.body)
+        data = JSON.load(request.body)
         if data["status"] == "ok" and data["events"]
                 data["events"].each do |e, text=e["message"]["text"]|
                         if text.index("!toden") != nil
@@ -72,13 +73,20 @@ post '/' do
                                 dateday=(Date.today-dateparam).mday
                                 if(dateparam>0) then
                                         graphdatetime=pastfileanalysis(dateyear,datemon,dateday)
-                                        return './figure/PowerUsageGraph'+dateyear.to_s+'-'+datemon.to_s+'-'+dateday.to_s+'.png'
+                                        return 'http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/PowerUsageGraph'+dateyear.to_s+'-'+datemon.to_s+'-'+dateday.to_s+'.png'
                                 else
                                         graphdatetime=todayfileanalysis
-                                        return "./figure/PowerUsageGraph.png"
+                                        return "http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/PowerUsageGraph.png"
                                 end
+			else
+				return ""
                         end
                 end
+	else
+		return ""
         end
 end
 
+get '/todengraphdaylingr' do
+	"Hello TodenGraphDayLingr!!"
+end
