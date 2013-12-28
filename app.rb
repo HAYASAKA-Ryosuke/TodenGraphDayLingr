@@ -7,9 +7,10 @@ require 'date'
 require 'json'
 
 def graphgenerate(xlabels,y,x_name,y_name,graphname)
+	system('rm -f ./figure/Now*.png')
         g = Gruff::Line.new
-        g.title = graphname
-        g.data(graphname,y)
+        g.title = "PowerUsageGraph"
+        g.data("PowerUsageGraph",y)
         g.labels = xlabels
         g.x_axis_label = x_name
         g.y_axis_label = y_name
@@ -21,7 +22,7 @@ def filedownload(url,filename)
         system('nkf -w --overwrite '+ filename)
 end
 
-def todayfileanalysis()
+def todayfileanalysis(filename)
         if((DateTime.now.to_time-File.stat("./data/juyo-j.csv").mtime.to_time).to_i > 0) then
                 filedownload('http://www.tepco.co.jp/forecast/html/images/juyo-j.csv','./data/juyo-j.csv')
                 powerdata=[]
@@ -39,7 +40,7 @@ def todayfileanalysis()
         end
 
         xlabels={0 => '0',12 => '1',24 => '2',36 => '3',48 => '4',60 => '5',72 => '6',84 => '7',96 => '8',108 => '9',120 => '10',132 => '11',144 => '12',156 => '13',168 => '14',180 => '15',192 => '16',204 => '17',216 => '18',228 => '19',240 => '20',252 => '21',264 => '22',276 => '23'}
-        graphgenerate(xlabels,powerdata,'Hour','Power Usage[MW]','PowerUsageGraph')
+        graphgenerate(xlabels,powerdata,'Hour','Power Usage[MW]',filename)
         return ""
 
 end
@@ -75,8 +76,9 @@ post '/todengraphdaylingr' do
                                         graphdatetime=pastfileanalysis(dateyear,datemon,dateday)
                                         return 'http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/PowerUsageGraph'+dateyear.to_s+'-'+datemon.to_s+'-'+dateday.to_s+'.png'
                                 else
-                                        graphdatetime=todayfileanalysis
-                                        return "http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/PowerUsageGraph.png"
+					filename = 'NowPowerUsageGraph'+[*1..9, *'A'..'Z', *'a'..'z'].sample(8).join
+                                        graphdatetime=todayfileanalysis(filename)
+                                        return "http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/"+filename+".png"
                                 end
 			else
 				return ""
