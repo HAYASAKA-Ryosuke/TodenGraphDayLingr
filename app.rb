@@ -9,12 +9,21 @@ require 'json'
 def graphgenerate(xlabels,y,x_name,y_name,graphname)
 	system('rm -f ./figure/Now*.png')
         g = Gruff::Line.new
-        g.title = "PowerUsageGraph"
-        g.data("PowerUsageGraph",y)
-        g.labels = xlabels
-        g.x_axis_label = x_name
-        g.y_axis_label = y_name
-        g.write('./figure/'+graphname+'.png')
+	if graphname.include?("Now")
+        	g.title = "PowerUsageGraph"
+        	g.data("PowerUsageGraph",y)
+        	g.labels = xlabels
+        	g.x_axis_label = x_name
+        	g.y_axis_label = y_name
+        	g.write('./figure/'+graphname+'.png')
+	else
+        	g.title = graphname
+        	g.data(graphname,y)
+        	g.labels = xlabels
+        	g.x_axis_label = x_name
+        	g.y_axis_label = y_name
+        	g.write('./figure/'+graphname+'.png')
+	end
 end
 
 def filedownload(url,filename)
