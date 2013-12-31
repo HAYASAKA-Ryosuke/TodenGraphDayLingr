@@ -17,6 +17,7 @@ def graphgenerate(xlabels,y,x_name,y_name,graphname)
         	g.y_axis_label = y_name
         	g.write('./figure/'+graphname+'.png')
 	else
+		system('rm -f ./figure/'+graphname+'.png')
         	g.title = graphname
         	g.data(graphname,y)
         	g.labels = xlabels
@@ -58,7 +59,7 @@ def todayfileanalysis(filename,option)
                 end
         end
 	if option != nil
-		powerdata=diff(1,powerdata)
+		powerdata=diff(5,powerdata)
 	end
         xlabels={0 => '0',12 => '1',24 => '2',36 => '3',48 => '4',60 => '5',72 => '6',84 => '7',96 => '8',108 => '9',120 => '10',132 => '11',144 => '12',156 => '13',168 => '14',180 => '15',192 => '16',204 => '17',216 => '18',228 => '19',240 => '20',252 => '21',264 => '22',276 => '23'}
         graphgenerate(xlabels,powerdata,'Hour','Power Usage[MW]',filename)
@@ -67,8 +68,8 @@ def todayfileanalysis(filename,option)
 end
 
 def pastfileanalysis(dateyear,datemonth,dateday,option)
+	optionname=''
         filename=dateyear.to_s+'-'+datemonth.to_s+'-'+dateday.to_s+'.json'
-        if(File.exist?("./data/"+filename)==false) then
                 url='http://tepco-usage-api.appspot.com/'+dateyear.to_s+'/'+datemonth.to_s+'/'+dateday.to_s+'.json'
                 filedownload(url,"./data/"+filename)
                 powerdata=[]
@@ -79,11 +80,11 @@ def pastfileanalysis(dateyear,datemonth,dateday,option)
                 end
 		if option != nil
 			powerdata=diff(1,powerdata)
+			optionname='diff'
 		end
                 xlabels={0 => '0',1 => '1',2 => '2',3 => '3',4 => '4',5 => '5',6 => '6',7 => '7',8 => '8',9 => '9',10 => '10',11 => '11',12 => '12',13 => '13',14 => '14',15 => '15',16 => '16',17 => '17',18 => '18',19 => '19',20 => '20',21 => '21',22 => '22',23 => '23'}
-                graphgenerate(xlabels,powerdata,'Hour','Power Usage[MW]','PowerUsageGraph'+dateyear.to_s+'-'+datemonth.to_s+'-'+dateday.to_s)
-        end
-        return ""
+                graphgenerate(xlabels,powerdata,'Hour','Power Usage[MW]','PowerUsageGraph'+dateyear.to_s+'-'+datemonth.to_s+'-'+dateday.to_s+optionname)
+        return 'PowerUsageGraph'+dateyear.to_s+'-'+datemonth.to_s+'-'+dateday.to_s+optionname+'.png'
 end
 
 post '/todengraphdaylingr' do
@@ -98,7 +99,7 @@ post '/todengraphdaylingr' do
                                 dateday=(Date.today-dateparam).mday
                                 if(dateparam>0) then
                                         graphdatetime=pastfileanalysis(dateyear,datemon,dateday,text.index("diff"))
-                                        return 'http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/PowerUsageGraph'+dateyear.to_s+'-'+datemon.to_s+'-'+dateday.to_s+'.png'
+                                        return 'http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/'+graphdatetime
                                 else
 					filename = 'NowPowerUsageGraph'+[*1..9, *'A'..'Z', *'a'..'z'].sample(8).join
                                         graphdatetime=todayfileanalysis(filename,text.index('diff'))
