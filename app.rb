@@ -87,31 +87,40 @@ def pastfileanalysis(dateyear,datemonth,dateday,option)
         return 'PowerUsageGraph'+dateyear.to_s+'-'+datemonth.to_s+'-'+dateday.to_s+optionname+'.png'
 end
 
+def LingrRequestJudge(data)
+	if(data["status"] == "ok" and data["events"]) then
+		data["events"].each do |e, text=e["messsage"]["text"]|
+			if(text.index("!toden") != nil) then
+				return True
+			else
+				return False
+			end
+		end
+	else
+		return False
+	end
+end
+
+
 post '/todengraphdaylingr' do
         #data = JSON.parse(request.body)
         data = JSON.load(request.body)
-        if data["status"] == "ok" and data["events"]
-                data["events"].each do |e, text=e["message"]["text"]|
-                        if text.index("!toden") != nil
-                                dateparam=text.split(" ")[1].to_i
-                                dateyear=(Date.today-dateparam).year
-                                datemon=(Date.today-dateparam).mon
-                                dateday=(Date.today-dateparam).mday
-                                if(dateparam>0) then
-                                        graphdatetime=pastfileanalysis(dateyear,datemon,dateday,text.index("diff"))
-                                        return 'http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/'+graphdatetime
-                                else
-					filename = 'NowPowerUsageGraph'+[*1..9, *'A'..'Z', *'a'..'z'].sample(8).join
-                                        graphdatetime=todayfileanalysis(filename,text.index('diff'))
-                                        return "http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/"+filename+".png"
-                                end
-			else
-				return ""
-                        end
-                end
+	if(LingrDataJudge(data)) then
+		dateparam=text.split(" ")[1].to_i
+		dateyear=(Date.today-dateparam).year
+		datemon=(Date.today-dateparam).mon
+		dateday=(Date.today-dateparam).mday
+		if(dateparam>0) then
+			graphdatetime=pastfileanalysis(dateyear,datemon,dateday,text.index("diff"))	
+			return 'http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/'+graphdatetime
+		else
+       			filename = 'NowPowerUsageGraph'+[*1..9, *'A'..'Z', *'a'..'z'].sample(8).join
+        		graphdatetime=todayfileanalysis(filename,text.index('diff'))                                     
+        		return "http://v157-7-153-173.z1d1.static.cnode.jp/tmpfigure/TodenGraphDayLingr/"+filename+".png"
+		end
 	else
 		return ""
-        end
+	end
 end
 
 get '/todengraphdaylingr' do
